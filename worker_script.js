@@ -1,19 +1,22 @@
 const {parentPort} = require('worker_threads')
-async function  testFn(){
-  return await new Promise((resolve,reject)=>{
+function  testFn(){
+  // return await new Promise((resolve,reject)=>{
     // setTimeout(() => {
       for(let i = 0; i < 10000000000; i++){
 
       }
-      resolve("work completed")
+      return("work completed")
     // }, 3000);
-  }) 
+  // }) 
 }
 
-parentPort.on('message',async (task)=>{
-  const workData = await testFn();
-  // if( task=='Wassup Worker1' ){
-  //   throw Error("This is the error")
-  // }
-  parentPort.postMessage({"message": workData,"task":task})
+parentPort.on('message', (task)=>{
+  const workData = testFn();
+  if( task=='Wassup Worker1' ){
+    process.exit(1)
+    // throw Error("This is the error")
+  }else{
+    parentPort.postMessage({"message": workData,"task":task})
+  }
+  
 })

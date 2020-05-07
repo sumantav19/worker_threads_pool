@@ -32,11 +32,12 @@ class WorkerPool extends EventEmitter{
     })
     worker.on('error',(error)=>{
       console.log(">>>>>>>>",error)
-      this.addNewWorker(this.filename);
       callback(error,undefined);
     })
-    worker.on('exit',(err)=>{
-      console.log(exit);
+    worker.on('exit',(exitCode)=>{
+      console.log("exit",exitCode);
+      callback(exitCode,undefined);
+      this.addNewWorker(this.filename);
     })
   }
 }
@@ -54,7 +55,13 @@ async function main(){
           }
           resolve(result);
         })
-      }).then((result)=>{console.log(result); return result}))
+      })
+      .then((result)=>{
+        console.log(result); 
+        return result})
+      .catch((err)=>{
+        console.log(`errored out at ${i}`); 
+        return "err"}))
     }
     console.log(await Promise.all(workerPromises))
   }
