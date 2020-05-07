@@ -17,7 +17,7 @@ class WorkerPool extends EventEmitter{
   }  
   runTask(task,callback){
     if(this.workers.length == 0){
-      this.on('freedworker',()=>{
+      this.once('freedworker',()=>{
         console.log("worker freed")
         this.runTask(task,callback);
       })
@@ -43,32 +43,20 @@ class WorkerPool extends EventEmitter{
 
 async function main(){
   if(isMainThread){
-    const workerPool = new WorkerPool('./worker_script.js',2)
-    const worker1Data = await new Promise((resolve,reject)=>{
-      workerPool.runTask("Wassup Worker1",(err,result)=>{
-        if(err){
-          reject(err);
-          return;
-        }
-        resolve(result);
-      })
-    })
-    const worker2Data = await new Promise((resolve,reject)=>{
-      workerPool.runTask("Wassup Worker2",(err,result)=>{
-        resolve(result);
-      })
-    })
-    const worker3Data = await new Promise((resolve,reject)=>{
-      workerPool.runTask("Wassup Worker3",(err,result)=>{
-        resolve(result);
-      })
-    })
-    const worker4Data = await new Promise((resolve,reject)=>{
-      workerPool.runTask("Wassup Worker4",(err,result)=>{
-        resolve(result);
-      })
-    })
-    console.log(worker1Data,worker2Data,worker3Data,worker4Data);
+    const workerPool = new WorkerPool('./worker_script.js',4)
+    const workerPromises= []
+    for(let i = 1 ; i <= 6; i++){
+      workerPromises.push( new Promise((resolve,reject)=>{
+        workerPool.runTask(`Wassup Worker${i}`,(err,result)=>{
+          if(err){
+            reject(err);
+            return;
+          }
+          resolve(result);
+        })
+      }).then((result)=>{console.log(result); return result}))
+    }
+    console.log(await Promise.all(workerPromises))
   }
 }
  
