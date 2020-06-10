@@ -25,16 +25,16 @@ class WorkerPool extends EventEmitter{
     }
     const worker=this.workers.pop()
     worker.postMessage(task);
-    worker.on('message',(result)=>{
+    worker.once('message',(result)=>{
       this.emit('freedworker')
       callback(undefined,result)
       this.workers.push(worker)
     })
-    worker.on('error',(error)=>{
+    worker.once('error',(error)=>{
       console.log(">>>>>>>>",error)
       callback(error,undefined);
     })
-    worker.on('exit',(exitCode)=>{
+    worker.once('exit',(exitCode)=>{
       console.log("exit",exitCode);
       callback(exitCode,undefined);
       this.addNewWorker(this.filename);
